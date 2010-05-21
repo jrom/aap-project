@@ -357,8 +357,10 @@ int main( int argc , char *argv[] ) {
   printf( "PCA TIMING SHOULD start here\n");
 
   // TIMING START
-  struct rusage start, end;
-  if (getrusage(RUSAGE_SELF, &start) == -1) exit(0);
+  // struct rusage start, end;
+  // if (getrusage(RUSAGE_SELF, &start) == -1) exit(0);
+  struct timeval start, end;
+  gettimeofday(&start, NULL);
 
 /************/
 
@@ -557,13 +559,19 @@ int main( int argc , char *argv[] ) {
 
 
   // TIMING STOP
-  if (getrusage(RUSAGE_SELF, &end) == -1) exit(0);
-  float start_u, start_s, end_u, end_s;
-  end_u = (end.ru_utime.tv_sec + (end.ru_utime.tv_usec / 1000000.0));
-  end_s = (end.ru_stime.tv_sec + (end.ru_stime.tv_usec / 1000000.0 ));
-  start_u = (start.ru_utime.tv_sec + (start.ru_utime.tv_usec / 1000000.0));
-  start_s = (start.ru_stime.tv_sec + (start.ru_stime.tv_usec / 1000000.0));
-  fprintf(stderr, "Timing amb crida al sistems times: user %f segons, system: %f segons\n", end_u, end_s - start_s);
+  gettimeofday(&end, NULL);
+  float elapsed;
+  elapsed = (end.tv_sec + (end.tv_usec / 1000000.0)) - (start.tv_sec + (start.tv_usec / 1000000.0));
+  fprintf(stderr, "%f\n", elapsed);
+  
+  // if (getrusage(RUSAGE_SELF, &end) == -1) exit(0);
+  // float start_u, start_s, end_u, end_s;
+  // end_u = (end.ru_utime.tv_sec + (end.ru_utime.tv_usec / 1000000.0));
+  // end_s = (end.ru_stime.tv_sec + (end.ru_stime.tv_usec / 1000000.0 ));
+  // start_u = (start.ru_utime.tv_sec + (start.ru_utime.tv_usec / 1000000.0));
+  // start_s = (start.ru_stime.tv_sec + (start.ru_stime.tv_usec / 1000000.0));
+  // // fprintf(stderr, "Timing amb crida al sistems times: user %f segons, system: %f segons\n", end_u, end_s - start_s);
+  // fprintf(stderr, "%f\n", end_u);
 
   printf( "Starting main loop through the rotations\n" ) ;
   printf( "PCA TIMING SHOULD stop here\n");
