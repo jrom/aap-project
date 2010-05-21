@@ -81,9 +81,9 @@ struct Amino_Acid{
 } ;
 
 struct Structure{
-	char			ident[256] ;
-	int			length ;
-	struct Amino_Acid	*Residue ;	
+	char			ident[256];
+	int			length;
+	struct Amino_Acid	*Residue;
 } ;
 
 /************/

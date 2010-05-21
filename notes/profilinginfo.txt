@@ -1,0 +1,3 @@
+/Users/jordi/code/ppca/sources/3D_Dock/progs/ftdock -static /Users/jordi/code/ppca/inputs/proteins/2pka.parsed -mobile /Users/jordi/code/ppca/inputs/proteins/5pti.parsed
+
+original elapsed imac: 26,24
