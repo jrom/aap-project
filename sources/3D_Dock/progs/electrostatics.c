@@ -112,10 +112,41 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
 
 /************/
 
+
+
+  // Pre-process needed floats
+
+  unsigned int cnt = 0;
+  for( residue = 1 ; residue <= This_Structure.length ; residue ++ )
+    cnt += residue * This_Structure.Residue[residue].size;
+
+  unsigned int atoms = 0;
+  float *atom_coords, *aux_coord;
+  float *atom_charges, *aux_charge;
+  atom_coords = malloc(cnt * 3 * sizeof(float));
+  atom_charges = malloc(cnt * sizeof(float));
+
+  for( aux_coord = atom_coords, aux_charge = atom_charges, residue = 1 ; residue <= This_Structure.length ; residue ++ )
+  {
+    for( atom = 1 ; atom <= This_Structure.Residue[residue].size ; atom ++ )
+    {
+      if( This_Structure.Residue[residue].Atom[atom].charge != 0 )
+      {
+        *aux_coord = This_Structure.Residue[residue].Atom[atom].coord[1];
+        *(aux_coord + 1) = This_Structure.Residue[residue].Atom[atom].coord[2];
+        *(aux_coord + 2) = This_Structure.Residue[residue].Atom[atom].coord[3];
+        aux_coord += 3;
+        *aux_charge = This_Structure.Residue[residue].Atom[atom].charge;
+        aux_charge++;
+        atoms++;
+      }
+    }
+  }
+  // End pre-process
+
   setvbuf( stdout , (char *)NULL , _IONBF , 0 ) ;
 
   printf( "  electric field calculations ( one dot / grid sheet ) " ) ;
-
   for( x = 0 ; x < grid_size ; x ++ )
   {
     printf( "." ) ;
@@ -127,36 +158,33 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
       {
         z_centre  = gcentre( z , grid_span , grid_size ) ;
         phi = 0 ;
-        for( residue = 1 ; residue <= This_Structure.length ; residue ++ )
+        aux_coord = atom_coords;
+        aux_charge = atom_charges;
+        for ( atom = 1; atom < atoms; atom++)
         {
-          for( atom = 1 ; atom <= This_Structure.Residue[residue].size ; atom ++ )
+          distance = pythagoras( *aux_coord , *(aux_coord+1) , *(aux_coord+2) , x_centre , y_centre , z_centre ) ;
+          if( distance < 2.0 ) distance = 2.0 ;
+          if( distance >= 2.0 )
           {
-            if( This_Structure.Residue[residue].Atom[atom].charge != 0 )
+            if( distance >= 8.0 )
             {
-              distance = pythagoras( This_Structure.Residue[residue].Atom[atom].coord[1] , This_Structure.Residue[residue].Atom[atom].coord[2] , This_Structure.Residue[residue].Atom[atom].coord[3] , x_centre , y_centre , z_centre ) ;
-              if( distance < 2.0 ) distance = 2.0 ;
-              if( distance >= 2.0 )
+              epsilon = 80 ;
+            }
+            else
+            { 
+              if( distance <= 6.0 )
+              { 
+                epsilon = 4 ;
+              }
+              else
               {
-                if( distance >= 8.0 )
-                {
-                  epsilon = 80 ;
-                }
-                else
-                { 
-                  if( distance <= 6.0 )
-                  { 
-                    epsilon = 4 ;
-                  }
-                  else
-                  {
-                    epsilon = ( 38 * distance ) - 224 ;
-                  }
-                }
-                phi += ( This_Structure.Residue[residue].Atom[atom].charge / ( epsilon * distance ) ) ;
+                epsilon = ( 38 * distance ) - 224 ;
               }
             }
+            phi += ( *aux_charge / ( epsilon * distance ) ) ;
           }
-
+          aux_coord += 3;
+          aux_charge++;
         }
         grid[gaddress(x,y,z,grid_size)] = (fftw_real)phi;
       }
