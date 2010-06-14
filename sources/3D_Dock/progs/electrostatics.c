@@ -144,6 +144,10 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
   }
 
   posix_memalign((void**) &atom_distances, 16, atoms * sizeof(float));
+  float mem_epsilon[200] = {4, 4, 4, 4, 4, 4, 0, 0};
+  int _i;
+  for(_i = 8; _i < 200; _i++)
+    mem_epsilon[_i] = 80;
 
   // End pre-process
 
@@ -211,21 +215,23 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
         for ( atom = 1; atom < atoms; atom++)
         {
           if( *aux_distance < 2.0 ) *aux_distance = 2.0 ;
-          if( *aux_distance >= 8.0 )
-          {
-            epsilon = 80 ;
-          }
-          else
-          { 
-            if( *aux_distance <= 6.0 )
-            { 
-              epsilon = 4 ;
-            }
-            else
-            {
-              epsilon = ( 38 * *aux_distance ) - 224 ;
-            }
-          }
+          // if( *aux_distance >= 8.0 )
+          // {
+          //   epsilon = 80 ;
+          // }
+          // else
+          // {
+          //   if( *aux_distance <= 6.0 )
+          //   {
+          //     epsilon = 4 ;
+          //   }
+          //   else
+          //   {
+          //     epsilon = ( 38 * *aux_distance ) - 224 ;
+          //   }
+          // }
+          epsilon = mem_epsilon[(int) *aux_distance];
+          if (epsilon == 0) epsilon = ( 38 * *aux_distance ) - 224;
 
           phi += ( *aux_charge / ( epsilon * (*aux_distance) ) ) ;
           aux_charge++;
