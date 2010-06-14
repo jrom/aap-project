@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-NITER=1 # Number of times each step will be repeated to get greater precision
+NITER=0 # Number of times each step will be repeated to get greater precision
 
 function check_coord {
   cat $1 | tail -n 4 | head -3 | cut -b 40- | sort
