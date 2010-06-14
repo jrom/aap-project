@@ -123,6 +123,7 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
   unsigned int atoms = 0;
   float *atom_coords, *aux_coord;
   float *atom_charges, *aux_charge;
+  float *atom_distances, *aux_distance;
   atom_coords = malloc(cnt * 3 * sizeof(float));
   atom_charges = malloc(cnt * sizeof(float));
 
@@ -142,6 +143,8 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
       }
     }
   }
+
+  atom_distances = malloc(atoms * sizeof(float));
   // End pre-process
 
   setvbuf( stdout , (char *)NULL , _IONBF , 0 ) ;
@@ -159,33 +162,39 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
         z_centre  = gcentre( z , grid_span , grid_size ) ;
         phi = 0 ;
         aux_coord = atom_coords;
-        aux_charge = atom_charges;
+        aux_distance = atom_distances;
         for ( atom = 1; atom < atoms; atom++)
         {
-          distance = pythagoras( *aux_coord , *(aux_coord+1) , *(aux_coord+2) , x_centre , y_centre , z_centre ) ;
-          if( distance < 2.0 ) distance = 2.0 ;
-          if( distance >= 2.0 )
+          *aux_distance = sqrt( ( ( *aux_coord - x_centre ) * ( *aux_coord - x_centre ) ) + ( ( *(aux_coord+1) - y_centre ) * ( *(aux_coord+1) - y_centre ) ) + ( ( *(aux_coord+2) - z_centre ) * ( *(aux_coord+2) - z_centre ) ) ) ;
+          aux_coord += 3;
+          aux_distance++;
+        }
+
+        aux_charge = atom_charges;
+        aux_distance = atom_distances;
+        for ( atom = 1; atom < atoms; atom++)
+        {
+          if( *aux_distance < 2.0 ) *aux_distance = 2.0 ;
+          if( *aux_distance >= 8.0 )
           {
-            if( distance >= 8.0 )
-            {
-              epsilon = 80 ;
+            epsilon = 80 ;
+          }
+          else
+          { 
+            if( *aux_distance <= 6.0 )
+            { 
+              epsilon = 4 ;
             }
             else
-            { 
-              if( distance <= 6.0 )
-              { 
-                epsilon = 4 ;
-              }
-              else
-              {
-                epsilon = ( 38 * distance ) - 224 ;
-              }
+            {
+              epsilon = ( 38 * *aux_distance ) - 224 ;
             }
-            phi += ( *aux_charge / ( epsilon * distance ) ) ;
           }
-          aux_coord += 3;
+          phi += ( *aux_charge / ( epsilon * *aux_distance ) ) ;
           aux_charge++;
+          aux_distance++;
         }
+
         grid[gaddress(x,y,z,grid_size)] = (fftw_real)phi;
       }
     }
