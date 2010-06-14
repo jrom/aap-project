@@ -13,6 +13,8 @@ function comp_coord {
   else
     echo "error"
   fi
+  $(echo check_coord $1.out)
+  $(echo check_coord $OUTPUTS/$1.output)
 }
 
 FTDOCK=../sources/3D_Dock/progs/ftdock
