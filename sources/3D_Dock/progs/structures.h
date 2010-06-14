@@ -33,6 +33,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <time.h>
 #include "rfftw.h"
 
+// For vectorization
+#include <xmmintrin.h>
+
+
 /************/
 
 /* These values directly below may be altered, and the programs rebuilt */

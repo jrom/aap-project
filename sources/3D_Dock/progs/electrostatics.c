@@ -124,8 +124,8 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
   float *atom_coords, *aux_coord;
   float *atom_charges, *aux_charge;
   float *atom_distances, *aux_distance;
-  atom_coords = malloc(cnt * 3 * sizeof(float));
-  atom_charges = malloc(cnt * sizeof(float));
+  posix_memalign((void**) &atom_coords, 16, cnt * 4 * sizeof(float));
+  posix_memalign((void**) &atom_charges, 16, cnt * sizeof(float));
 
   for( aux_coord = atom_coords, aux_charge = atom_charges, residue = 1 ; residue <= This_Structure.length ; residue ++ )
   {
@@ -136,7 +136,7 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
         *aux_coord = This_Structure.Residue[residue].Atom[atom].coord[1];
         *(aux_coord + 1) = This_Structure.Residue[residue].Atom[atom].coord[2];
         *(aux_coord + 2) = This_Structure.Residue[residue].Atom[atom].coord[3];
-        aux_coord += 3;
+        aux_coord += 4;
         *aux_charge = This_Structure.Residue[residue].Atom[atom].charge;
         aux_charge++;
         atoms++;
@@ -163,10 +163,14 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
         phi = 0 ;
         aux_coord = atom_coords;
         aux_distance = atom_distances;
+        __m128 _centers = _mm_setr_ps(x_centre, y_centre, z_centre, 0.0);
         for ( atom = 1; atom < atoms; atom++)
         {
-          *aux_distance = sqrt( ( ( *aux_coord - x_centre ) * ( *aux_coord - x_centre ) ) + ( ( *(aux_coord+1) - y_centre ) * ( *(aux_coord+1) - y_centre ) ) + ( ( *(aux_coord+2) - z_centre ) * ( *(aux_coord+2) - z_centre ) ) ) ;
-          aux_coord += 3;
+          __m128 *coords = (__m128*) aux_coord;
+          __m128 aux = _mm_sub_ps(*coords, _centers);
+          aux = _mm_mul_ps(aux, aux);
+          *aux_distance = sqrt( *((float*) &aux) + *((float*) (&aux)+1) + *((float*) (&aux)+2) );
+          aux_coord += 4;
           aux_distance++;
         }
 
