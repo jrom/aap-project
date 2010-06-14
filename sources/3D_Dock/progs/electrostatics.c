@@ -191,7 +191,7 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
           *((float*) &pyths+3) = *((float*) &aux) + *((float*) (&aux)+1) + *((float*) (&aux)+2);
           aux_coord += 4;
 
-          *((__m128*) aux_distance) = _mm_rsqrt_ps(pyths);
+          *((__m128*) aux_distance) = _mm_sqrt_ps(pyths);
 
           aux_distance +=4 ;
         }
