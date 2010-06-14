@@ -96,6 +96,7 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
   /* Variables */
 
   float		phi , epsilon ;
+  float epsilon1, epsilon2, epsilon3, epsilon4;
 
 /************/
 
@@ -208,28 +209,71 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
 
         aux_distance = atom_distances;
         aux_charge = atom_charges;
-        for ( atom = 1; atom < atoms; atom++)
+        for ( atom = 1; atom < atoms; atom += 4)
         {
           if( *aux_distance < 2.0 ) *aux_distance = 2.0 ;
+          if( *(aux_distance+1) < 2.0 ) *(aux_distance+1) = 2.0 ;
+          if( *(aux_distance+2) < 2.0 ) *(aux_distance+2) = 2.0 ;
+          if( *(aux_distance+3) < 2.0 ) *(aux_distance+3) = 2.0 ;
+
           if( *aux_distance >= 8.0 )
-          {
-            epsilon = 80 ;
-          }
+            epsilon1 = 80 ;
           else
-          { 
             if( *aux_distance <= 6.0 )
-            { 
-              epsilon = 4 ;
-            }
+              epsilon1 = 4 ;
             else
-            {
+              epsilon1 = ( 38 * *aux_distance ) - 224 ;
+
+          if( *(aux_distance+1) >= 8.0 )
+            epsilon2 = 80 ;
+          else
+            if( *(aux_distance+1) <= 6.0 )
+              epsilon2 = 4 ;
+            else
+              epsilon2 = ( 38 * *(aux_distance+1) ) - 224 ;
+
+
+          if( *(aux_distance+2) >= 8.0 )
+            epsilon3 = 80 ;
+          else
+            if( *(aux_distance+2) <= 6.0 )
+              epsilon3 = 4 ;
+            else
+              epsilon3 = ( 38 * *(aux_distance+2) ) - 224 ;
+
+
+          if( *(aux_distance+3) >= 8.0 )
+            epsilon4 = 80 ;
+          else
+            if( *(aux_distance+3) <= 6.0 )
+              epsilon4 = 4 ;
+            else
+              epsilon4 = ( 38 * *(aux_distance+3) ) - 224 ;
+
+
+          phi += ( *aux_charge / ( epsilon1 * (*aux_distance) ) ) ;
+          phi += ( *(aux_charge+1) / ( epsilon2 * (*(aux_distance+1)) ) ) ;
+          phi += ( *(aux_charge+2) / ( epsilon3 * (*(aux_distance+2)) ) ) ;
+          phi += ( *(aux_charge+3) / ( epsilon4 * (*(aux_distance+3)) ) ) ;
+
+          aux_charge += 4;
+          aux_distance += 4;
+        }
+
+        for (; atom < atoms; atom++)
+        {
+          if( *aux_distance < 2.0 ) *aux_distance = 2.0 ;
+
+          if( *aux_distance >= 8.0 )
+            epsilon = 80 ;
+          else
+            if( *aux_distance <= 6.0 )
+              epsilon = 4 ;
+            else
               epsilon = ( 38 * *aux_distance ) - 224 ;
-            }
-          }
 
           phi += ( *aux_charge / ( epsilon * (*aux_distance) ) ) ;
           aux_charge++;
-
           aux_distance++;
         }
 
