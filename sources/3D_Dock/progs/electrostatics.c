@@ -87,6 +87,8 @@ float *atom_charges;
 
 unsigned int atoms;
 
+#define NT 16
+
 void electric_field( struct Structure This_Structure , float grid_span , int grid_size , fftw_real *grid )
 {
 
@@ -135,7 +137,29 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
   g_grid_size = grid_size;
   g_grid = grid;
 
-  electric_field_partial(0);
+  pthread_t threads[NT];
+  int rc, t;
+
+  for(t = 0; t < NT; t++)
+  {
+    rc = pthread_create(&threads[t], NULL, electric_field_partial, (void *) t);
+    if (rc)
+    {
+      printf("ERROR CREATING THREAD (%d) = %d\n", t, rc);
+      exit(-1);
+    }
+  }
+
+  for(t = 0; t < NT; t++)
+  {
+    if (rc = pthread_join(threads[t], NULL))
+    {
+      printf("ERROR JOINING THREAD (%d) = %d\n", t, rc);
+      exit(0);
+    }
+  }
+
+  // electric_field_partial(0);
 
   printf( "\n" ) ;
 
@@ -156,6 +180,10 @@ void electric_field_partial( void *threadid )
   float epsilon1, epsilon2, epsilon3, epsilon4;
   int x , y , z ;
 
+
+  unsigned int tid = (int) threadid;
+  // fprintf(stderr, "THREAD ID: %d\n", tid);
+
   // Pre-process
 
   float *aux_coord;
@@ -164,8 +192,13 @@ void electric_field_partial( void *threadid )
   posix_memalign((void**) &atom_distances, 16, atoms * sizeof(float));
 
   // End pre-process
-  
-  for( x = 0 ; x < g_grid_size ; x ++ )
+
+  int x_from, x_to;
+  x_from = tid * (g_grid_size / NT);
+  x_to = (tid+1) * (g_grid_size / NT);
+  if (tid == NT - 1) x_to = g_grid_size;
+
+  for( x = x_from ; x < x_to ; x ++ )
   {
     printf( "." ) ;
     x_centre  = gcentre( x , g_grid_span , g_grid_size ) ;
