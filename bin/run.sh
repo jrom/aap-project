@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-NITER=0 # Number of times each step will be repeated to get greater precision
+NITER=1 # Number of times each step will be repeated to get greater precision
 
 function check_coord {
   cat $1 | tail -n 4 | head -3 | cut -b 40- | sort
@@ -31,16 +31,16 @@ rm test*.out
 
 
 # Time
-c=1
-sum=0
-while(test $c -le $NITER)
-do
-  ret=$($FTDOCK -static $INPUTS/2pka.parsed -mobile $INPUTS/5pti.parsed 2>&1 1>/dev/null)
-  sum=$(echo scale=4\; $sum + $ret | bc)
-  c=$(expr $c + 1)
-done
-sum=$(echo scale=4\; $sum / $NITER | bc)
-echo $sum
+# c=1
+# sum=0
+# while(test $c -le $NITER)
+# do
+#   ret=$($FTDOCK -static $INPUTS/2pka.parsed -mobile $INPUTS/5pti.parsed 2>&1 1>/dev/null)
+#   sum=$(echo scale=4\; $sum + $ret | bc)
+#   c=$(expr $c + 1)
+# done
+# sum=$(echo scale=4\; $sum / $NITER | bc)
+# echo $sum
 
 # Delete temp files
 rm *.dat
