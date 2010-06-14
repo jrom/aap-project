@@ -215,35 +215,33 @@ void electric_field_partial( void *threadid )
         for ( atom = 1; atom < atoms-3; atom += 4)
         {
           __m128 pyths;
-          __m128 aux1, aux2, aux3, aux4;
-          // __m128 sum1, sum2, sum3;
+          __m128 *coords = (__m128*) aux_coord;
+          __m128 aux = _mm_sub_ps(*coords, _centers);
+          aux = _mm_mul_ps(aux, aux);
+          *((float*) &pyths) = *((float*) &aux) + *((float*) (&aux)+1) + *((float*) (&aux)+2);
+          aux_coord += 4;
 
-          aux1 = _mm_sub_ps(*((__m128*) aux_coord), _centers);
-          aux2 = _mm_sub_ps(*((__m128*) aux_coord+4), _centers);
-          aux3 = _mm_sub_ps(*((__m128*) aux_coord+8), _centers);
-          aux4 = _mm_sub_ps(*((__m128*) aux_coord+12), _centers);
+          coords = (__m128*) aux_coord;
+          aux = _mm_sub_ps(*coords, _centers);
+          aux = _mm_mul_ps(aux, aux);
+          *((float*) &pyths+1) = *((float*) &aux) + *((float*) (&aux)+1) + *((float*) (&aux)+2);
+          aux_coord += 4;
 
-          aux1 = _mm_mul_ps(aux1, aux1);
-          aux2 = _mm_mul_ps(aux2, aux2);
-          aux3 = _mm_mul_ps(aux3, aux3);
-          aux4 = _mm_mul_ps(aux4, aux4);
+          coords = (__m128*) aux_coord;
+          aux = _mm_sub_ps(*coords, _centers);
+          aux = _mm_mul_ps(aux, aux);
+          *((float*) &pyths+2) = *((float*) &aux) + *((float*) (&aux)+1) + *((float*) (&aux)+2);
+          aux_coord += 4;
 
-          *((float*) &pyths+0) = *((float*) &aux1) + *((float*) (&aux1)+1) + *((float*) (&aux1)+2);
-          *((float*) &pyths+1) = *((float*) &aux2) + *((float*) (&aux2)+1) + *((float*) (&aux2)+2);
-          *((float*) &pyths+2) = *((float*) &aux3) + *((float*) (&aux3)+1) + *((float*) (&aux3)+2);
-          *((float*) &pyths+3) = *((float*) &aux4) + *((float*) (&aux4)+1) + *((float*) (&aux4)+2);
-
-          // sum1 = _mm_setr_ps(*((float*) (&aux1)+0), *((float*) (&aux2)+0), *((float*) (&aux3)+0), *((float*) (&aux4)+0));
-          // sum2 = _mm_setr_ps(*((float*) (&aux1)+1), *((float*) (&aux2)+1), *((float*) (&aux3)+1), *((float*) (&aux4)+1));
-          // sum3 = _mm_setr_ps(*((float*) (&aux1)+2), *((float*) (&aux2)+2), *((float*) (&aux3)+2), *((float*) (&aux4)+2));
-
-          // pyths = _mm_add_ps(sum1, sum2);
-          // pyths = _mm_add_ps(pyths, sum3);
+          coords = (__m128*) aux_coord;
+          aux = _mm_sub_ps(*coords, _centers);
+          aux = _mm_mul_ps(aux, aux);
+          *((float*) &pyths+3) = *((float*) &aux) + *((float*) (&aux)+1) + *((float*) (&aux)+2);
+          aux_coord += 4;
 
           *((__m128*) aux_distance) = _mm_sqrt_ps(pyths);
 
-          aux_coord += 16;
-          aux_distance += 4;
+          aux_distance +=4 ;
         }
 
         for ( ; atom < atoms; atom++)
