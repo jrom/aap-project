@@ -33,7 +33,7 @@ SECURITY	= chmod 555
 
 OS=$(shell uname)
 ifeq ($(OS),Darwin)
-CC_FLAGS = -O3 -march=core2
+CC_FLAGS = -O3 -march=core2 -m32
 endif
 
 ####################################################
