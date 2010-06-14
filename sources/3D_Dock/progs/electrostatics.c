@@ -95,7 +95,6 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
 
   /* Variables */
 
-  float		distance ;
   float		phi , epsilon ;
 
 /************/
@@ -144,7 +143,8 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
     }
   }
 
-  atom_distances = malloc(atoms * sizeof(float));
+  posix_memalign((void**) &atom_distances, 16, atoms * sizeof(float));
+
   // End pre-process
 
   setvbuf( stdout , (char *)NULL , _IONBF , 0 ) ;
@@ -166,7 +166,6 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
         __m128 _centers = _mm_setr_ps(x_centre, y_centre, z_centre, 0.0);
         for ( atom = 1; atom < atoms-3; atom += 4)
         {
-          float pyth1, pyth2, pyth3, pyth4;
           __m128 pyths;
           __m128 *coords = (__m128*) aux_coord;
           __m128 aux = _mm_sub_ps(*coords, _centers);
@@ -207,8 +206,8 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
           aux_distance++;
         }
 
-        aux_charge = atom_charges;
         aux_distance = atom_distances;
+        aux_charge = atom_charges;
         for ( atom = 1; atom < atoms; atom++)
         {
           if( *aux_distance < 2.0 ) *aux_distance = 2.0 ;
@@ -227,8 +226,10 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
               epsilon = ( 38 * *aux_distance ) - 224 ;
             }
           }
-          phi += ( *aux_charge / ( epsilon * *aux_distance ) ) ;
+
+          phi += ( *aux_charge / ( epsilon * (*aux_distance) ) ) ;
           aux_charge++;
+
           aux_distance++;
         }
 
