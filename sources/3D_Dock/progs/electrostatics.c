@@ -260,16 +260,15 @@ void electric_field_partial( void *threadid )
         aux_charge = atom_charges;
         for ( atom = 1; atom < atoms; atom += 4)
         {
-          if( *aux_distance < 2.0 ) *aux_distance = 2.0 ;
-          if( *(aux_distance+1) < 2.0 ) *(aux_distance+1) = 2.0 ;
-          if( *(aux_distance+2) < 2.0 ) *(aux_distance+2) = 2.0 ;
-          if( *(aux_distance+3) < 2.0 ) *(aux_distance+3) = 2.0 ;
 
           if( *aux_distance >= 8.0 )
             epsilon1 = 80 ;
           else
             if( *aux_distance <= 6.0 )
+            {
               epsilon1 = 4 ;
+              if( *aux_distance < 2.0 ) *aux_distance = 2.0 ;
+            }
             else
               epsilon1 = ( 38 * *aux_distance ) - 224 ;
 
@@ -277,7 +276,10 @@ void electric_field_partial( void *threadid )
             epsilon2 = 80 ;
           else
             if( *(aux_distance+1) <= 6.0 )
+            {
               epsilon2 = 4 ;
+              if( *(aux_distance+1) < 2.0 ) *(aux_distance+1) = 2.0 ;
+            }
             else
               epsilon2 = ( 38 * *(aux_distance+1) ) - 224 ;
 
@@ -286,7 +288,11 @@ void electric_field_partial( void *threadid )
             epsilon3 = 80 ;
           else
             if( *(aux_distance+2) <= 6.0 )
+            {
               epsilon3 = 4 ;
+              if( *(aux_distance+2) < 2.0 ) *(aux_distance+2) = 2.0 ;
+            }
+
             else
               epsilon3 = ( 38 * *(aux_distance+2) ) - 224 ;
 
@@ -295,7 +301,11 @@ void electric_field_partial( void *threadid )
             epsilon4 = 80 ;
           else
             if( *(aux_distance+3) <= 6.0 )
+            {
               epsilon4 = 4 ;
+              if( *(aux_distance+3) < 2.0 ) *(aux_distance+3) = 2.0 ;
+            }
+
             else
               epsilon4 = ( 38 * *(aux_distance+3) ) - 224 ;
 
