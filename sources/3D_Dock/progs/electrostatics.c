@@ -250,12 +250,11 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
             else
               epsilon4 = ( 38 * *(aux_distance+3) ) - 224 ;
 
+          __m128 epsilons = _mm_setr_ps( epsilon1, epsilon2, epsilon3, epsilon4);
+          epsilons = _mm_mul_ps(epsilons, *((__m128*) aux_distance));
+          epsilons = _mm_div_ps(*((__m128*) aux_charge), epsilons);
 
-          phi += ( *aux_charge / ( epsilon1 * (*aux_distance) ) ) ;
-          phi += ( *(aux_charge+1) / ( epsilon2 * (*(aux_distance+1)) ) ) ;
-          phi += ( *(aux_charge+2) / ( epsilon3 * (*(aux_distance+2)) ) ) ;
-          phi += ( *(aux_charge+3) / ( epsilon4 * (*(aux_distance+3)) ) ) ;
-
+          phi += (*((float*) &epsilons) + *((float*) (&epsilons)+1) + *((float*) (&epsilons)+2) + *((float*) (&epsilons)+3));
           aux_charge += 4;
           aux_distance += 4;
         }
