@@ -164,7 +164,40 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
         aux_coord = atom_coords;
         aux_distance = atom_distances;
         __m128 _centers = _mm_setr_ps(x_centre, y_centre, z_centre, 0.0);
-        for ( atom = 1; atom < atoms; atom++)
+        for ( atom = 1; atom < atoms-3; atom += 4)
+        {
+          float pyth1, pyth2, pyth3, pyth4;
+          __m128 pyths;
+          __m128 *coords = (__m128*) aux_coord;
+          __m128 aux = _mm_sub_ps(*coords, _centers);
+          aux = _mm_mul_ps(aux, aux);
+          *((float*) &pyths) = *((float*) &aux) + *((float*) (&aux)+1) + *((float*) (&aux)+2);
+          aux_coord += 4;
+
+          coords = (__m128*) aux_coord;
+          aux = _mm_sub_ps(*coords, _centers);
+          aux = _mm_mul_ps(aux, aux);
+          *((float*) &pyths+1) = *((float*) &aux) + *((float*) (&aux)+1) + *((float*) (&aux)+2);
+          aux_coord += 4;
+
+          coords = (__m128*) aux_coord;
+          aux = _mm_sub_ps(*coords, _centers);
+          aux = _mm_mul_ps(aux, aux);
+          *((float*) &pyths+2) = *((float*) &aux) + *((float*) (&aux)+1) + *((float*) (&aux)+2);
+          aux_coord += 4;
+
+          coords = (__m128*) aux_coord;
+          aux = _mm_sub_ps(*coords, _centers);
+          aux = _mm_mul_ps(aux, aux);
+          *((float*) &pyths+3) = *((float*) &aux) + *((float*) (&aux)+1) + *((float*) (&aux)+2);
+          aux_coord += 4;
+
+          *((__m128*) aux_distance) = _mm_rsqrt_ps(pyths);
+
+          aux_distance +=4 ;
+        }
+
+        for ( ; atom < atoms; atom++)
         {
           __m128 *coords = (__m128*) aux_coord;
           __m128 aux = _mm_sub_ps(*coords, _centers);
