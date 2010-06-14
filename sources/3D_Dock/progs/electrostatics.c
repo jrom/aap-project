@@ -283,7 +283,6 @@ void electric_field_partial( void *threadid )
               epsilon3 = 4 ;
               if( *(aux_distance+2) < 2.0 ) *(aux_distance+2) = 2.0 ;
             }
-
             else
               epsilon3 = ( 38 * *(aux_distance+2) ) - 224 ;
 
@@ -296,7 +295,6 @@ void electric_field_partial( void *threadid )
               epsilon4 = 4 ;
               if( *(aux_distance+3) < 2.0 ) *(aux_distance+3) = 2.0 ;
             }
-
             else
               epsilon4 = ( 38 * *(aux_distance+3) ) - 224 ;
 
@@ -311,13 +309,14 @@ void electric_field_partial( void *threadid )
 
         for (; atom < atoms; atom++)
         {
-          if( *aux_distance < 2.0 ) *aux_distance = 2.0 ;
-
           if( *aux_distance >= 8.0 )
             epsilon = 80 ;
           else
             if( *aux_distance <= 6.0 )
+            {
               epsilon = 4 ;
+              if( *aux_distance < 2.0 ) *aux_distance = 2.0 ;
+            }
             else
               epsilon = ( 38 * *aux_distance ) - 224 ;
 
