@@ -154,6 +154,8 @@ extern void surface_grid( float grid_span , int grid_size , fftw_real *grid , fl
 
 extern void assign_charges( struct Structure This_Structure ) ;
 extern void electric_field( struct Structure This_Structure , float grid_span , int grid_size , fftw_real *grid ) ;
+extern void electric_field_partial( void *threadid );
+
 extern void electric_point_charge( struct Structure This_Structure , float grid_span , int grid_size , fftw_real *grid ) ;
 extern void electric_field_zero_core( int grid_size , fftw_real *elec_grid , fftw_real *surface_grid , float internal_value ) ;
 

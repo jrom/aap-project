@@ -77,55 +77,41 @@ void assign_charges( struct Structure This_Structure ) {
 
 /************************/
 
+struct Structure g_This_Structure;
+float g_grid_span;
+int g_grid_size;
+fftw_real *g_grid;
 
+float *atom_coords;
+float *atom_charges;
+
+unsigned int atoms;
 
 void electric_field( struct Structure This_Structure , float grid_span , int grid_size , fftw_real *grid )
 {
 
-/************/
+  int x , y , z ;
+  int residue ,atom;
 
-  /* Counters */
-
-  int	residue , atom ;
-
-  /* Co-ordinates */
-
-  int	x , y , z ;
-  float		x_centre , y_centre , z_centre ;
-
-  /* Variables */
-
-  float		phi , epsilon ;
-  float epsilon1, epsilon2, epsilon3, epsilon4;
-
-/************/
-
-  for( x = 0 ; x < grid_size ; x ++ ) {
-    for( y = 0 ; y < grid_size ; y ++ ) {
-      for( z = 0 ; z < grid_size ; z ++ ) {
-
+  for( x = 0 ; x < grid_size ; x ++ )
+    for( y = 0 ; y < grid_size ; y ++ )
+      for( z = 0 ; z < grid_size ; z ++ )
         grid[gaddress(x,y,z,grid_size)] = (fftw_real)0 ;
 
-      }
-    }
-  }
+  setvbuf( stdout , (char *)NULL , _IONBF , 0 ) ;
 
-/************/
-
-
-
-  // Pre-process needed floats
+  printf( "  electric field calculations ( one dot / grid sheet ) " ) ;
 
   unsigned int cnt = 0;
   for( residue = 1 ; residue <= This_Structure.length ; residue ++ )
     cnt += residue * This_Structure.Residue[residue].size;
 
-  unsigned int atoms = 0;
-  float *atom_coords, *aux_coord;
-  float *atom_charges, *aux_charge;
-  float *atom_distances, *aux_distance;
+  float *aux_coord;
+  float *aux_charge;
   posix_memalign((void**) &atom_coords, 16, cnt * 4 * sizeof(float));
   posix_memalign((void**) &atom_charges, 16, cnt * sizeof(float));
+
+  atoms = 0;
 
   for( aux_coord = atom_coords, aux_charge = atom_charges, residue = 1 ; residue <= This_Structure.length ; residue ++ )
   {
@@ -144,23 +130,51 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
     }
   }
 
+  memcpy(&g_This_Structure, &This_Structure, sizeof(This_Structure));
+  g_grid_span = grid_span;
+  g_grid_size = grid_size;
+  g_grid = grid;
+
+  electric_field_partial(0);
+
+  printf( "\n" ) ;
+
+/************/
+
+  return ;
+
+}
+
+// Function electric_field_partial to be threaded
+
+void electric_field_partial( void *threadid )
+{
+
+  int residue ,atom;
+  float x_centre , y_centre , z_centre;
+  float phi , epsilon ;
+  float epsilon1, epsilon2, epsilon3, epsilon4;
+  int x , y , z ;
+
+  // Pre-process
+
+  float *aux_coord;
+  float *aux_charge;
+  float *atom_distances, *aux_distance;
   posix_memalign((void**) &atom_distances, 16, atoms * sizeof(float));
 
   // End pre-process
-
-  setvbuf( stdout , (char *)NULL , _IONBF , 0 ) ;
-
-  printf( "  electric field calculations ( one dot / grid sheet ) " ) ;
-  for( x = 0 ; x < grid_size ; x ++ )
+  
+  for( x = 0 ; x < g_grid_size ; x ++ )
   {
     printf( "." ) ;
-    x_centre  = gcentre( x , grid_span , grid_size ) ;
-    for( y = 0 ; y < grid_size ; y ++ )
+    x_centre  = gcentre( x , g_grid_span , g_grid_size ) ;
+    for( y = 0 ; y < g_grid_size ; y ++ )
     {
-      y_centre  = gcentre( y , grid_span , grid_size ) ;
-      for( z = 0 ; z < grid_size ; z ++ )
+      y_centre  = gcentre( y , g_grid_span , g_grid_size ) ;
+      for( z = 0 ; z < g_grid_size ; z ++ )
       {
-        z_centre  = gcentre( z , grid_span , grid_size ) ;
+        z_centre  = gcentre( z , g_grid_span , g_grid_size ) ;
         phi = 0 ;
         aux_coord = atom_coords;
         aux_distance = atom_distances;
@@ -276,20 +290,14 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
           aux_distance++;
         }
 
-        grid[gaddress(x,y,z,grid_size)] = (fftw_real)phi;
+        g_grid[gaddress(x,y,z,g_grid_size)] = (fftw_real) phi;
       }
     }
   }
-
-  printf( "\n" ) ;
-
-/************/
-
-  return ;
-
+  
 }
 
-
+// END Function electric_field_partial
 
 /************************/
 
