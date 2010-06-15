@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 NITER=0 # Number of times each step will be repeated to get greater precision
+# This is set to 0 to just run it once and check the results.
 
 function check_coord {
   cat $1 | tail -n 4 | head -3 | cut -b 40- | sort
@@ -31,13 +32,12 @@ comp_coord test3
 
 rm test*.out
 
-
 # Time
 c=1
 sum=0
 while(test $c -le $NITER)
 do
-  ret=$($FTDOCK -static $INPUTS/2pka.parsed -mobile $INPUTS/5pti.parsed 2>&1 1>/dev/null)
+  ret=$($FTDOCK -static $INPUTS/4hhb.parsed -mobile $INPUTS/5pti.parsed 2>&1 1>/dev/null)
   sum=$(echo scale=4\; $sum + $ret | bc)
   c=$(expr $c + 1)
 done
@@ -46,5 +46,6 @@ then
   sum=$(echo scale=4\; $sum / $NITER | bc)
   echo $sum
 fi
+
 # Delete temp files
 rm *.dat
