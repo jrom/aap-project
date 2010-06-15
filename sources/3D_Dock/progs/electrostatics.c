@@ -160,8 +160,6 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
     }
   }
 
-  // electric_field_partial(0);
-
   printf( "\n" ) ;
 
 /************/
@@ -213,7 +211,7 @@ void electric_field_partial( void *threadid )
         aux_coord = atom_coords;
         aux_distance = atom_distances;
         __m128 _centers = _mm_setr_ps(x_centre, y_centre, z_centre, 0.0);
-        for ( atom = 1; atom < atoms-3; atom += 4)
+        for ( atom = 0; atom < atoms-3; atom += 4)
         {
           __m128 pyths;
           __m128 aux1, aux2, aux3, aux4;
@@ -250,7 +248,7 @@ void electric_field_partial( void *threadid )
 
         aux_distance = atom_distances;
         aux_charge = atom_charges;
-        for ( atom = 1; atom < atoms; atom += 4)
+        for ( atom = 0; atom < atoms; atom += 4)
         {
 
           if( *aux_distance >= 8.0 )
