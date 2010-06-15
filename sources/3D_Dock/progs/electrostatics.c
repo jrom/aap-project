@@ -124,6 +124,7 @@ void electric_field( struct Structure This_Structure , float grid_span , int gri
         *aux_coord = This_Structure.Residue[residue].Atom[atom].coord[1];
         *(aux_coord + 1) = This_Structure.Residue[residue].Atom[atom].coord[2];
         *(aux_coord + 2) = This_Structure.Residue[residue].Atom[atom].coord[3];
+        *(aux_coord + 3) = 0;
         aux_coord += 4;
         *aux_charge = This_Structure.Residue[residue].Atom[atom].charge;
         aux_charge++;
