@@ -22,12 +22,12 @@ INPUTS=../inputs/proteins
 OUTPUTS=../outputs
 
 $FTDOCK -static $INPUTS/2pka.parsed -mobile $INPUTS/5pti.parsed > test1.out
-# $FTDOCK -static $INPUTS/1hba.parsed -mobile $INPUTS/5pti.parsed > test2.out
-# $FTDOCK -static $INPUTS/4hhb.parsed -mobile $INPUTS/5pti.parsed > test3.out
+$FTDOCK -static $INPUTS/1hba.parsed -mobile $INPUTS/5pti.parsed > test2.out
+$FTDOCK -static $INPUTS/4hhb.parsed -mobile $INPUTS/5pti.parsed > test3.out
 
 comp_coord test1
-# comp_coord test2
-# comp_coord test3
+comp_coord test2
+comp_coord test3
 
 rm test*.out
 
